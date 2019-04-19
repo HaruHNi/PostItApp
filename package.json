@@ -1,0 +1,9 @@
+{
+  "name": "PostItApp",
+  "version": "1.0.0",
+  "description": "Post-It Web Application",
+  "main": "index.js",
+  "repository": "https://haruhni@github.com/HaruHNi/PostItApp.git",
+  "author": "haruhni <haruhni@naver.com>",
+  "license": "MIT"
+}
