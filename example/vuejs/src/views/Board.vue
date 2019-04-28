@@ -16,7 +16,7 @@ export default {
     },
     data () {
         return {
-            postIt: { id: 1, collapse: true, message: '' }
+            postIt: { id: 1, collapse: false, message: '' }
         }
     }
 }
