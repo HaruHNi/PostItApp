@@ -1,5 +1,5 @@
 <template>
-    <div class="post-it" :class=classes>
+    <div class="post-it" :class=classes v-draggable>
         <div class="post-it-bar">
             <span class="post-it-title">{{ title }}</span>
             <div class="post-it-control-group">

@@ -1,6 +1,10 @@
 @import url("~reset-css/reset.css");
 @import './_mixins.scss';
 
+html, body {
+    height: 100%;
+}
+
 * {
     box-sizing: inherit;
     font-size: inherit;
@@ -17,4 +21,5 @@ button {
     display: block;
     overflow: hidden;
     color: transparent;
+    pointer-events: none;
 }

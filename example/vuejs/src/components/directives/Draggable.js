@@ -1,0 +1,74 @@
+class Draggable {
+    constructor (element) {
+        this.$el = element
+        this.distance = null
+        this.canceled = ['input', 'textarea', 'button', 'select', 'option']
+    }
+
+    init () {
+        this.bindStart = this.start.bind(this)
+        this.bindMove = this.move.bind(this)
+        this.bindEnd = this.end.bind(this)
+
+        this.$el.addEventListener('mousedown', this.bindStart)
+        document.addEventListener('mouseup', this.bindEnd)
+    }
+
+    start (e) {
+        const { nodeName = '' } = e.target
+
+        if (this.canceled.includes(nodeName.toLowerCase())) {
+            return
+        }
+
+        const { pageX, pageY } = e
+        const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = this.$el
+
+        const distance = {
+            x: pageX - offsetLeft,
+            y: pageY - offsetTop,
+            targetWidth: offsetWidth,
+            targetHeight: offsetHeight
+        }
+
+        this.distance = distance
+        document.addEventListener('mousemove', this.bindMove)
+    }
+
+    move (e) {
+        const { clientWidth, clientHeight } = document.body
+        const { pageX, pageY } = e
+        const { x, y, targetWidth, targetHeight } = this.distance
+
+        let left = pageX - x
+        let top = pageY - y
+
+        if (left < 0 || left + targetWidth > clientWidth) {
+            left = left < 0 ? 0 : clientWidth - targetWidth
+        }
+
+        if (top < 0 || top + targetHeight > clientHeight) {
+            top = top < 0 ? 0 : clientHeight - targetHeight
+        }
+
+        this.updatePosition({left, top})
+    }
+
+    end () {
+        document.removeEventListener('mousemove', this.bindMove)
+    }
+
+    updatePosition ({left = 0, top = 0}) {
+        const { cssText = '' } = this.$el.style 
+        const newCssText = `${cssText} left: ${left}px; top: ${top}px;`
+
+        this.$el.style.cssText = newCssText
+    }
+}
+
+export default {
+    bind (el) {
+        const draggable = new Draggable(el)
+        draggable.init()
+    }
+}
