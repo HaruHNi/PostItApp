@@ -1,5 +1,5 @@
 <template>
-    <div class="post-it" :class=classes v-draggable>
+    <div class="post-it" :class=classes v-draggable="onMove" :style="styles" @click="onActive">
         <div class="post-it-bar">
             <span class="post-it-title">{{ title }}</span>
             <div class="post-it-control-group">
@@ -13,7 +13,7 @@
         </div>
 
         <div class="post-it-content">
-            <textarea v-model="bindMessage"></textarea>
+            <textarea v-model="bindMessage" v-focus="focused" @blur="onTextareaBlur"></textarea>
         </div>
     </div>
 </template>
@@ -33,12 +33,24 @@ export default {
         message: {
             type: String,
             default: ''
+        },
+        position: {
+            type: Object,
+            default () {
+                return {
+                    left: 0,
+                    top: 0
+                }
+            }
         }
     },
     data () {
         return {
+            actived: false,
+            focused: false,
             bindMessage: this.message,
-            bindCollapse: this.collapse
+            bindCollapse: this.collapse,
+            bindPosition: this.position
         }
     },
     computed: {
@@ -50,15 +62,38 @@ export default {
         title () {
             const [ title = '', ] = this.bindMessage.split('\n')
             return title
+        },
+        styles () {
+            const {left = 0, top = 0} = this.bindPosition
+            return {
+                left: `${left}px`,
+                top: `${top}px`
+            }
         }
     },
     methods: {
+        onActive () {
+            this.focused = true
+        },
         onToggle () {
             this.bindCollapse = !this.bindCollapse
         },
         onDelete () {
             this.$destroy()
             this.$el.parentNode.removeChild(this.$el)
+        },
+        onMove ({target, position}) {
+            const { className = '' } = target
+
+            if (className === 'post-it-bar') {
+                this.updatePosition(position)
+            }
+        },
+        onTextareaBlur () {
+            this.focused = false
+        },
+        updatePosition (position) {
+            this.bindPosition = position
         }
     }
 }
@@ -76,6 +111,7 @@ export default {
     font-size: 15px;
     transition: height 100ms ease;
     box-sizing: border-box;
+    resize: both;
 
     .post-it-bar {
         position: absolute;
@@ -83,12 +119,14 @@ export default {
         height: 25px;
         top: 0;
         border-bottom: 1px solid #000;
+        user-select: none;
 
         .post-it-title {
             @include ellipsis();
             padding-left: 10px;
             padding-right: 50px;
             line-height: 25px;
+            pointer-events: none;
         }
 
         .post-it-control-group {

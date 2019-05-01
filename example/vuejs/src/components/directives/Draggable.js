@@ -1,6 +1,9 @@
 class Draggable {
-    constructor (element) {
+    constructor (element, binding) {
         this.$el = element
+        this.binding = binding
+
+        this.$target = null
         this.distance = null
         this.canceled = ['input', 'textarea', 'button', 'select', 'option']
     }
@@ -15,12 +18,14 @@ class Draggable {
     }
 
     start (e) {
-        const { nodeName = '' } = e.target
+        const { target } = e
+        const { nodeName = '' } = target
 
         if (this.canceled.includes(nodeName.toLowerCase())) {
             return
         }
 
+        this.$target = target
         const { pageX, pageY } = e
         const { offsetLeft, offsetTop, offsetWidth, offsetHeight } = this.$el
 
@@ -51,14 +56,33 @@ class Draggable {
             top = top < 0 ? 0 : clientHeight - targetHeight
         }
 
-        this.updatePosition({left, top})
+        const param = {
+            type: 'draggable',
+            target: this.$target,
+            position: {
+                left,
+                top
+            }
+        }
+
+        if (this.isBinging()) {
+            this.binding(param)
+        } else {
+            this.updatePosition(param)
+        }
     }
 
     end () {
+        this.$target = null
         document.removeEventListener('mousemove', this.bindMove)
     }
 
-    updatePosition ({left = 0, top = 0}) {
+    isBinging () {
+        return !!this.binding
+    }
+
+    updatePosition ({position = {}}) {
+        const {left = 0, top = 0} = position
         const { cssText = '' } = this.$el.style 
         const newCssText = `${cssText} left: ${left}px; top: ${top}px;`
 
@@ -67,8 +91,9 @@ class Draggable {
 }
 
 export default {
-    bind (el) {
-        const draggable = new Draggable(el)
+    bind (el, binding) {
+        const { value = null } = binding
+        const draggable = new Draggable(el, value)
         draggable.init()
     }
 }

@@ -2,7 +2,7 @@
   <div id="board">
     <h1>Board!!</h1>
 
-    <PostIt v-bind="postIt"/>
+    <PostIt v-for="postIt in postIts" :key="postIt.id" v-bind="postIt"/>
   </div>
 </template>
 
@@ -16,7 +16,11 @@ export default {
     },
     data () {
         return {
-            postIt: { id: 1, collapse: false, message: '' }
+            postIts: [
+              { id: 1, collapse: false, message: '1', position: {left: 0, top: 0} },
+              { id: 2, collapse: false, message: '2', position: {left: 0, top: 210} },
+              { id: 3, collapse: false, message: '3', position: {left: 0, top: 420} }
+            ]
         }
     }
 }
