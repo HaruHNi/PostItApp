@@ -1,5 +1,5 @@
 <template>
-    <div class="post-it" :class=classes v-draggable="onMove" :style="styles" @click="onActive">
+    <div class="post-it" :class=classes v-draggable="onMove" :style="positionStyle" @click="onActive">
         <div class="post-it-bar">
             <span class="post-it-title">{{ title }}</span>
             <div class="post-it-control-group">
@@ -23,7 +23,7 @@ export default {
     name: 'PostIt',
     props: {
         id: {
-            type: Number,
+            type: [Number, String],
             required: true
         },
         collapse: {
@@ -63,8 +63,8 @@ export default {
             const [ title = '', ] = this.bindMessage.split('\n')
             return title
         },
-        styles () {
-            const {left = 0, top = 0} = this.bindPosition
+        positionStyle () {
+            const { left = 0, top = 0 } = this.bindPosition
             return {
                 left: `${left}px`,
                 top: `${top}px`

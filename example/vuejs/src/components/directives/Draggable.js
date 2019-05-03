@@ -82,7 +82,7 @@ class Draggable {
     }
 
     updatePosition ({position = {}}) {
-        const {left = 0, top = 0} = position
+        const { left = 0, top = 0 } = position
         const { cssText = '' } = this.$el.style 
         const newCssText = `${cssText} left: ${left}px; top: ${top}px;`
 
