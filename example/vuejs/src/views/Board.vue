@@ -6,9 +6,12 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import { uuid } from '@/utils'
+import CONSTANT from '@/store/constant'
+
 import PostIt from '@/components/PostIt'
 import ContextMenu from '@/components/ContextMenu'
-import { uuid } from '@/utils'
 
 export default {
     name: 'Board',
@@ -18,16 +21,16 @@ export default {
     },
     data () {
         return {
-            postIts: [
-                { id: uuid(), collapse: false, message: '1', position: {left: 0, top: 0} },
-                { id: uuid(), collapse: false, message: '1', position: {left: 0, top: 210} },
-                { id: uuid(), collapse: false, message: '1', position: {left: 0, top: 420} },
-            ],
             contextMenus: [
                 { id: 1, title: 'Post It 추가' },
                 { id: 2, title: 'Post It 전체 삭제' }
             ]
         }
+    },
+    computed: {
+        ...mapState([
+            'postIts'
+        ])
     },
     methods: {
         onOpenContextMenu (e) {
@@ -45,13 +48,14 @@ export default {
             }
         },
         addPostIt () {
-            const id = uuid()
-            this.postIts.push({
-                id, collapse: false, message: id, position: {left: 0, top: 0} 
-            })
+            const postIt = {
+                id: uuid(), collapse: false, message: '', position: {left: 0, top: 0} 
+            }
+
+            this.$store.commit(CONSTANT.ADD_POST_IT, postIt)
         },
         deleteAllPostIt () {
-            this.postIts = []
+            this.$store.commit(CONSTANT.DELETE_ALL_POST_IT)
         }
     }
 }
