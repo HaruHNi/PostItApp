@@ -2,13 +2,12 @@ import Vue from 'vue'
 import App from '@/App.vue'
 import router from '@/router'
 import store from '@/store'
-
-import Focus from '@/components/directives/Focus'
-import Draggable from '@/components/directives/Draggable'
-Vue.directive('focus', Focus)
-Vue.directive('draggable', Draggable)
+import { registerDirective } from '@/utils'
+import directives from '@/components/directives'
 
 Vue.config.productionTip = false
+
+Object.keys(directives).forEach(key => registerDirective(Vue, directives[key]))
 
 new Vue({
     router,

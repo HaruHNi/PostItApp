@@ -91,6 +91,7 @@ class Draggable {
 }
 
 export default {
+    name: 'draggable',
     bind (el, binding) {
         const { value = null } = binding
         const draggable = new Draggable(el, value)

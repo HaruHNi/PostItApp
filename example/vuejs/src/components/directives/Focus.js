@@ -1,4 +1,5 @@
 export default {
+    name: 'focus',
     inserted (el, binding) {
         const { value = null } = binding
 
