@@ -1,5 +1,5 @@
 <template>
-    <div class="post-it" :class=classes v-draggable="onMove" :style="positionStyle" @click="onActive">
+    <div :id="id" class="post-it" :class=classes v-draggable="onMove" :style="positionStyle" @click="onActive">
         <div class="post-it-bar">
             <span class="post-it-title">{{ title }}</span>
             <div class="post-it-control-group">
@@ -94,6 +94,9 @@ export default {
         },
         updatePosition (position) {
             this.bindPosition = position
+        },
+        isCollapse () {
+            return this.bindCollapse
         }
     }
 }

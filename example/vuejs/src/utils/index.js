@@ -11,7 +11,10 @@ const uuid = function () {
 
 const registerDirective = (Vue, directive) => { Vue.directive(directive.name, directive) }
 
+const registerPlugin = (Vue, plugin, options) => { Vue.use(plugin, options) }
+
 export {
 	uuid,
-	registerDirective
+	registerDirective,
+	registerPlugin
 }

@@ -2,7 +2,7 @@
     <div class="context-menu" v-show="isOpened" :style="positionStyle" @contextmenu.stop>
         <ul class="menu-list">
             <li class="menu-item" 
-                v-for="menu in menus" :key="menu.id"
+                v-for="menu in filterMenus" :key="menu.id"
                 @click="onMenuClick(menu)">
                 {{ menu.title }}
             </li>
@@ -11,21 +11,15 @@
 </template>
 
 <script>
-import ClickDetector from '@/utils/ClickDetector'
+import ClickDetector from '@/components/plugins/contextMenu/ClickDetector'
 
 export default {
     name: 'ContextMenu',
-    props: {
-        menus: {
-            type: Array,
-            default () {
-                return []
-            },
-            required: true
-        }
-    },
     data () {
         return {
+            menus: [],
+            groups: [],
+            eventBus: null,
             isOpened: false,
             left: 0,
             top: 0,
@@ -33,6 +27,9 @@ export default {
         }
     },
     computed: {
+        filterMenus () {
+            return this.menus.filter(menu => this.groups.includes(menu.group))
+        },
         positionStyle () {
             const { left = 0, top = 0 } = this
             return {
@@ -49,22 +46,20 @@ export default {
                 this.close()
             }
         },
-        onMenuClick ({id, title}) {
-            this.$emit('click', {id, title})
+        onMenuClick ({id, action}) {
+            this.eventBus.$emit('contextMenuClick', {id, action})
             this.close()
         },
-        open (e) {
+        open (pagePos) {
             this.isOpened = true
-            this.updatePosition(e)
+            this.updatePosition(pagePos)
             this.documentClickDetector.bind()
         },
         close () {
             this.isOpened = false
             this.documentClickDetector.unbind()
         },
-        updatePosition (e) {
-            const { pageX = 0, pageY = 0 } = e
-
+        updatePosition ({ pageX = 0, pageY = 0 }) {
             this.$nextTick(() => {
                 const menu = this.$el
                 const { offsetWidth: menuWidth, offsetHeight: menuHeight } = menu
@@ -82,6 +77,9 @@ export default {
                     this.top = windowHeight - menuHeight
                 }
             })
+        },
+        changeGroups (groups = []) {
+            this.groups = groups
         }
     },
     created () {
@@ -93,6 +91,7 @@ export default {
 <style lang="scss">
 .context-menu {
     display: inline-block;
+    min-width: 100px;
     position: absolute;
     background-color: #ffffff;
     border: 1px solid #dbdbdb;

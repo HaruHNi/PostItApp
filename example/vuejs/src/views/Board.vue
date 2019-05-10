@@ -1,31 +1,19 @@
 <template>
     <div class="board" @contextmenu.prevent="onOpenContextMenu">
-        <PostIt v-for="postIt in postIts" :key="postIt.id" v-bind="postIt"/>
-        <ContextMenu ref="contextMenu" :menus="contextMenus" @click="onMenuClick"/>
+        <PostIt v-for="postIt in postIts" :key="postIt.id" :ref="postIt.id" v-bind="postIt"/>
     </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import { uuid } from '@/utils'
-import CONSTANT from '@/store/constant'
+import { EventBus } from '@/eventBus'
 
 import PostIt from '@/components/PostIt'
-import ContextMenu from '@/components/ContextMenu'
 
 export default {
     name: 'Board',
     components: {
-        PostIt,
-        ContextMenu
-    },
-    data () {
-        return {
-            contextMenus: [
-                { id: 1, title: 'Post It 추가' },
-                { id: 2, title: 'Post It 전체 삭제' }
-            ]
-        }
+        PostIt
     },
     computed: {
         ...mapState([
@@ -34,29 +22,28 @@ export default {
     },
     methods: {
         onOpenContextMenu (e) {
-            const { contextMenu = null } = this.$refs
-            
-            if (contextMenu) {
-                contextMenu.open(e)
+            this.$contextMenu.open(this.parseContextMenuParams(e))
+        },
+        onContextMenuClick ({action = ''}) {
+            if (action !== '') {
+                this.$store.dispatch(action)
             }
         },
-        onMenuClick ({id = 1}) {
-            if (id === 1) {
-                this.addPostIt()
-            } else {
-                this.deleteAllPostIt()
-            }
-        },
-        addPostIt () {
-            const postIt = {
-                id: uuid(), collapse: false, message: '', position: {left: 0, top: 0} 
+        parseContextMenuParams (e) {
+            const { target, pageX = 0, pageY = 0 } = e
+            const postItEl = target.closest('.post-it')
+            let groups = ['main']
+
+            if (!!postItEl) {
+                const postIt = this.$refs[postItEl.id][0]
+                groups = ['postIt', postIt.isCollapse() ? 'postIt-expand' : 'postIt-collapse' ]
             }
 
-            this.$store.commit(CONSTANT.ADD_POST_IT, postIt)
-        },
-        deleteAllPostIt () {
-            this.$store.commit(CONSTANT.DELETE_ALL_POST_IT)
+            return { pagePos: {pageX, pageY}, groups }
         }
+    },
+    created () {
+        EventBus.$on('contextMenuClick', this.onContextMenuClick)
     }
 }
 </script>
