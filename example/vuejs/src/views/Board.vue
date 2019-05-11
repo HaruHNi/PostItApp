@@ -1,12 +1,13 @@
 <template>
-    <div class="board" @contextmenu.prevent="onOpenContextMenu">
-        <PostIt v-for="postIt in postIts" :key="postIt.id" :ref="postIt.id" v-bind="postIt"/>
+    <div class="board" @contextmenu.prevent="onContextMenu" @click="onClick">
+        <PostIt v-for="postIt in postIts" :key="postIt.id" v-bind="postIt" @openContextMenu="openContextMenu"/>
     </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import { EventBus } from '@/eventBus'
+import CONSTANT from '@/store/constant'
 
 import PostIt from '@/components/PostIt'
 
@@ -21,25 +22,21 @@ export default {
         ])
     },
     methods: {
-        onOpenContextMenu (e) {
-            this.$contextMenu.open(this.parseContextMenuParams(e))
+        onContextMenu (e) {
+            const { pageX = 0, pageY = 0 } = e
+            this.openContextMenu({ pagePos: {pageX, pageY}, groups: ['main'] })
+            this.onClick()
         },
         onContextMenuClick ({action = ''}) {
             if (action !== '') {
                 this.$store.dispatch(action)
             }
         },
-        parseContextMenuParams (e) {
-            const { target, pageX = 0, pageY = 0 } = e
-            const postItEl = target.closest('.post-it')
-            let groups = ['main']
-
-            if (!!postItEl) {
-                const postIt = this.$refs[postItEl.id][0]
-                groups = ['postIt', postIt.isCollapse() ? 'postIt-expand' : 'postIt-collapse' ]
-            }
-
-            return { pagePos: {pageX, pageY}, groups }
+        onClick () {
+            this.$store.commit(CONSTANT.SET_ACTIVE_POST_IT, '')
+        },
+        openContextMenu (params) {
+            this.$contextMenu.open(params)
         }
     },
     created () {

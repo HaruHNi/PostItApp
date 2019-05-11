@@ -1,5 +1,7 @@
 <template>
-    <div :id="id" class="post-it" :class=classes v-draggable="onMove" :style="positionStyle" @click="onActive">
+    <div :id="id" class="post-it" 
+        :class=classes v-draggable="onMove" :style="positionStyle" 
+        @click="onClick" @contextmenu.prevent="onContextMenu">
         <div class="post-it-bar">
             <span class="post-it-title">{{ title }}</span>
             <div class="post-it-control-group">
@@ -13,12 +15,14 @@
         </div>
 
         <div class="post-it-content">
-            <textarea v-model="bindMessage" v-focus="focused" @blur="onTextareaBlur"></textarea>
+            <textarea v-model="bindMessage" v-focus="actived" @blur="onTextareaBlur"></textarea>
         </div>
     </div>
 </template>
 
 <script>
+import CONSTANT from '@/store/constant'
+
 export default {
     name: 'PostIt',
     props: {
@@ -47,7 +51,6 @@ export default {
     data () {
         return {
             actived: false,
-            focused: false,
             bindMessage: this.message,
             bindCollapse: this.collapse,
             bindPosition: this.position
@@ -56,6 +59,7 @@ export default {
     computed: {
         classes () {
             return {
+                'is-active': this.actived,
                 'is-collapse': this.bindCollapse
             }
         },
@@ -71,9 +75,23 @@ export default {
             }
         }
     },
+    watch: {
+        collapse (value) {
+            this.bindCollapse = value
+        }
+    },
     methods: {
-        onActive () {
-            this.focused = true
+        onClick (e) {
+            e.stopPropagation()
+            this.active()
+        },
+        onContextMenu (e) {
+            e.stopPropagation()
+            
+            const { pageX = 0, pageY = 0 } = e
+            const groups = ['postIt', this.bindCollapse ? 'postIt-expand' : 'postIt-collapse']
+            this.$emit('openContextMenu', { pagePos: {pageX, pageY}, groups })
+            this.active()
         },
         onToggle () {
             this.bindCollapse = !this.bindCollapse
@@ -90,7 +108,11 @@ export default {
             }
         },
         onTextareaBlur () {
-            this.focused = false
+            this.actived = false
+        },
+        active () {
+            this.actived = true
+            this.$store.commit(CONSTANT.SET_ACTIVE_POST_IT, this.id)
         },
         updatePosition (position) {
             this.bindPosition = position
@@ -112,6 +134,7 @@ export default {
     border: 1px solid #000;
     overflow: auto;
     font-size: 15px;
+    z-index: 1;
     transition: height 100ms ease;
     box-sizing: border-box;
     resize: both;
@@ -174,6 +197,11 @@ export default {
             outline: none;
             resize: none;
         }
+    }
+
+    &.is-active {
+        outline: 5px solid red;
+        z-index: 999998;
     }
 
     &.is-collapse {

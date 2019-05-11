@@ -96,6 +96,7 @@ export default {
     background-color: #ffffff;
     border: 1px solid #dbdbdb;
     padding: 5px 0;
+    z-index: 999999;
 
     .menu-item {
         font-size: 18px;
