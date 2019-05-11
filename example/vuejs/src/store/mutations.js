@@ -14,7 +14,7 @@ export default {
         const { postIts, activePostItId } = state
         let postIt = postIts.find(postIt => (postIt.id === activePostItId))
 
-        if (!!postIt) {
+        if (postIt) {
             postIt.collapse = false
         }
     },
@@ -22,7 +22,7 @@ export default {
         const { postIts, activePostItId } = state
         let postIt = postIts.find(postIt => (postIt.id === activePostItId))
 
-        if (!!postIt) {
+        if (postIt) {
             postIt.collapse = true
         }
     },
